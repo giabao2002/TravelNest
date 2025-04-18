@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Kiểm tra đăng nhập và vai trò admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     // Chuyển hướng về trang đăng nhập nếu chưa đăng nhập hoặc không phải admin
-    header('Location: ../login.php');
+    header('Location: ../../../login.php');
     exit();
 }
 ?>
@@ -29,5 +29,5 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <!-- Admin CSS -->
-    <link rel="stylesheet" href="assets/css/admin.css">
+    <link rel="stylesheet" href="../../assets/css/admin.css">
 </head>

@@ -1,5 +1,5 @@
 <?php
-require_once '../config/config.php';
+require_once '../../../config/config.php';
 
 // Tổng số tour
 $stmt = $conn->prepare("SELECT COUNT(*) as total FROM tours");
@@ -54,11 +54,11 @@ $stmt->execute();
 $recentReviews = $stmt->get_result();
 ?>
 
-<?php include 'layouts/header.php'; ?>
+<?php include '../../layouts/header.php'; ?>
 
 <body>
-    <?php include 'layouts/navbar.php'; ?>
-    <?php include 'layouts/sidebar.php'; ?>
+    <?php include '../../layouts/navbar.php'; ?>
+    <?php include '../../layouts/sidebar.php'; ?>
 
     <div class="content-wrapper" id="content-wrapper">
         <!-- Content Header -->
@@ -70,7 +70,7 @@ $recentReviews = $stmt->get_result();
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-end">
-                            <li class="breadcrumb-item"><a href="index.php">Trang chủ</a></li>
+                            <li class="breadcrumb-item"><a href="../statistics/statistics.php">Trang chủ</a></li>
                             <li class="breadcrumb-item active">Tổng quan</li>
                         </ol>
                     </div>
@@ -207,7 +207,7 @@ $recentReviews = $stmt->get_result();
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <a href="bookings.php" class="btn btn-sm btn-primary">Xem tất cả</a>
+                                <a href="../booking/bookings.php" class="btn btn-sm btn-primary">Xem tất cả</a>
                             </div>
                         </div>
                     </div>
@@ -250,7 +250,7 @@ $recentReviews = $stmt->get_result();
                                 <?php endif; ?>
                             </div>
                             <div class="card-footer">
-                                <a href="reviews.php" class="btn btn-sm btn-primary">Xem tất cả</a>
+                                <a href="../review/reviews.php" class="btn btn-sm btn-primary">Xem tất cả</a>
                             </div>
                         </div>
                     </div>
@@ -259,16 +259,4 @@ $recentReviews = $stmt->get_result();
         </div>
     </div>
 
-    <?php include 'layouts/footer.php'; ?>
-
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.5/dist/sweetalert2.all.min.js"></script>
-    <!-- Custom JavaScript -->
-    <script src="assets/js/admin.js"></script>
-</body>
-
-</html>
+    <?php include '../../layouts/footer.php'; ?>

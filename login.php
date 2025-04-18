@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result['success']) {
             // Chuyển hướng dựa vào vai trò
             if ($result['role'] === 'admin') {
-                header('Location: admin/index.php');
+                header('Location: admin/pages/statistics/statistics.php');
             } else {
                 header('Location: index.php');
             }

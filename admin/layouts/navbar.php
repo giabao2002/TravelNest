@@ -5,7 +5,7 @@
             <i class="fas fa-bars"></i>
         </button>
 
-        <a class="navbar-brand d-none d-md-block" href="index.php">Travel Nest</a>
+        <a class="navbar-brand d-none d-md-block" href="../statistics/statistics.php">Travel Nest</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarAdmin" aria-controls="navbarAdmin" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -18,11 +18,11 @@
                         <i class="fas fa-user-circle me-1"></i> <?php echo $_SESSION['full_name']; ?>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="../index.php" target="_blank"><i class="fas fa-globe me-2"></i>Xem trang web</a></li>
+                        <li><a class="dropdown-item" href="../../../index.php" target="_blank"><i class="fas fa-globe me-2"></i>Xem trang web</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="../logout.php"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
+                        <li><a class="dropdown-item" href="../../../logout.php"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
                     </ul>
                 </li>
             </ul>

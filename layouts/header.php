@@ -59,7 +59,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                                <li><a class="dropdown-item" href="admin/index.php"><i class="fas fa-cogs me-2"></i>Quản trị viên</a></li>
+                                <li><a class="dropdown-item" href="admin/pages/statistics/statistics.php"><i class="fas fa-cogs me-2"></i>Quản trị viên</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             <?php endif; ?>
                             <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user me-2"></i>Hồ sơ cá nhân</a></li>
