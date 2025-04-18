@@ -1,32 +1,30 @@
-/**
- * Travel Nest Admin - Custom JavaScript
- */
-
 $(document).ready(function() {
-    // Initialize tooltips
+    console.log("Document ready - initializing admin.js");
+    
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     
-    // Initialize popovers
     const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     const popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
         return new bootstrap.Popover(popoverTriggerEl);
     });
     
-    // Toggle sidebar on mobile and desktop
-    $('#sidebarToggle').on('click', function() {
+    $(document).on('click', '#sidebarToggle', function(e) {
+        console.log("Sidebar toggle clicked");
+        e.preventDefault();
+        e.stopPropagation();
         $('#sidebar').toggleClass('collapsed show');
         $('#content-wrapper').toggleClass('expanded');
+        $('.navbar-admin').toggleClass('expanded');
+        return false;
     });
     
-    // Close sidebar on mobile with close button
     $('#closeSidebar').on('click', function() {
         $('#sidebar').removeClass('show');
     });
     
-    // Close sidebar when clicking outside on mobile
     $(document).on('click', function(e) {
         if ($(window).width() < 768) {
             if (!$(e.target).closest('#sidebar').length && !$(e.target).closest('#sidebarToggle').length) {
@@ -35,14 +33,12 @@ $(document).ready(function() {
         }
     });
     
-    // Adjust based on screen resize
     $(window).resize(function() {
         if ($(window).width() >= 768) {
             $('#sidebar').removeClass('show');
         }
     });
     
-    // Back to top button
     const backToTopButton = $('#back-to-top');
     if (backToTopButton.length) {
         $(window).scroll(function() {
@@ -59,7 +55,6 @@ $(document).ready(function() {
         });
     }
     
-    // Confirm Delete Modal
     $('.delete-btn').on('click', function(e) {
         e.preventDefault();
         const itemId = $(this).data('id');
@@ -81,7 +76,6 @@ $(document).ready(function() {
         });
     });
     
-    // Status change confirmation
     $('.status-change').on('change', function() {
         const itemId = $(this).data('id');
         const itemType = $(this).data('type');
@@ -133,16 +127,13 @@ $(document).ready(function() {
                     }
                 });
             } else {
-                // Reset select to previous value
                 $(this).val($(this).data('original'));
             }
         });
     }).each(function() {
-        // Store original value
         $(this).data('original', $(this).val());
     });
     
-    // Dynamically update dashboard counters
     function animateCounter(element, start, end, duration) {
         let startTimestamp = null;
         const step = (timestamp) => {
@@ -157,7 +148,6 @@ $(document).ready(function() {
         window.requestAnimationFrame(step);
     }
     
-    // Initialize counter animations on dashboard if they exist
     document.querySelectorAll('.counter-value').forEach(counter => {
         const target = parseInt(counter.getAttribute('data-target'), 10);
         animateCounter(counter, 0, target, 1500);
