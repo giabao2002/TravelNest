@@ -141,7 +141,7 @@ $pageTitle = 'Chi tiết Người dùng: ' . htmlspecialchars($user['email']);
                     <div class="col-xl-8 col-md-12 mb-4">
                         <div class="card shadow mb-4">
                             <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Lịch sử Đặt tour</h6>
+                                <h6 class="m-0 font-weight-bold text-primary">Tour đã đặt</h6>
                             </div>
                             <div class="card-body">
                                 <?php if (empty($userBookings)): ?>
@@ -179,8 +179,6 @@ $pageTitle = 'Chi tiết Người dùng: ' . htmlspecialchars($user['email']);
                                                         <td>
                                                             <?php if ($booking['status'] == 'confirmed'): ?>
                                                                 <span class="badge badge-success">Đã xác nhận</span>
-                                                            <?php elseif ($booking['status'] == 'pending'): ?>
-                                                                <span class="badge badge-warning">Đang chờ</span>
                                                             <?php elseif ($booking['status'] == 'cancelled'): ?>
                                                                 <span class="badge badge-danger">Đã hủy</span>
                                                             <?php else: ?>

@@ -1,7 +1,51 @@
-<?php include 'layouts/header.php'; ?>
+<?php include 'layouts/header.php';
+include 'config/config.php';
+
+// Lấy tour mới nhất
+$newestToursQuery = "SELECT * FROM tours WHERE status = 'active' ORDER BY created_at DESC LIMIT 3";
+$newestToursResult = $conn->query($newestToursQuery);
+$newestTours = [];
+while ($row = $newestToursResult->fetch_assoc()) {
+    $newestTours[] = $row;
+}
+
+// Lấy tour được đặt nhiều nhất
+$popularToursQuery = "
+    SELECT t.*, COUNT(b.booking_id) as booking_count, 
+    (SELECT COUNT(*) FROM reviews r WHERE r.tour_id = t.tour_id AND r.status = 'active') as review_count,
+    (SELECT AVG(rating) FROM reviews r WHERE r.tour_id = t.tour_id AND r.status = 'active') as avg_rating
+    FROM tours t
+    LEFT JOIN bookings b ON t.tour_id = b.tour_id
+    WHERE t.status = 'active'
+    GROUP BY t.tour_id
+    ORDER BY booking_count DESC
+    LIMIT 3
+";
+$popularToursResult = $conn->query($popularToursQuery);
+$popularTours = [];
+while ($row = $popularToursResult->fetch_assoc()) {
+    $popularTours[] = $row;
+}
+
+// Lấy đánh giá khách hàng
+$reviewsQuery = "
+    SELECT r.*, u.full_name, u.email, t.name as tour_name
+    FROM reviews r
+    JOIN users u ON r.user_id = u.user_id
+    JOIN tours t ON r.tour_id = t.tour_id
+    WHERE r.status = 'active'
+    ORDER BY r.review_date DESC
+    LIMIT 3
+";
+$reviewsResult = $conn->query($reviewsQuery);
+$reviews = [];
+while ($row = $reviewsResult->fetch_assoc()) {
+    $reviews[] = $row;
+}
+?>
 
 <!-- Hero Section -->
-<section class="hero-section" style="background-image: url('assets/images/hero-bg.jpg');">
+<section class="hero-section" style="background-image: url('assets/images/banner1.png');">
     <div class="container hero-content text-center">
         <h1 class="hero-title animate">Khám Phá Vẻ Đẹp Việt Nam</h1>
         <p class="hero-subtitle animate delay-100">Trải nghiệm những chuyến du lịch trong nước đáng nhớ với Travel Nest</p>
@@ -9,170 +53,123 @@
     </div>
 </section>
 
-<!-- Search Section -->
-<section id="search" class="py-5">
-    <div class="container">
-        <div class="search-box animate">
-            <h3 class="text-center mb-4">Tìm Tour Du Lịch</h3>
-            <form id="search-form">
-                <div class="row g-3">
-                    <div class="col-md-5">
-                        <div class="form-floating">
-                            <input type="text" class="form-control" id="search-location" placeholder="Địa điểm">
-                            <label for="search-location">Địa điểm</label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-floating">
-                            <input type="text" class="form-control datepicker" id="search-date" placeholder="Ngày khởi hành">
-                            <label for="search-date">Ngày khởi hành</label>
-                        </div>
-                    </div>
-                    <div class="col-md-3 d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">Tìm kiếm</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</section>
-
-<!-- Popular Destinations -->
+<!-- Newest Tours -->
 <section class="py-5">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="fw-bold animate">Điểm Đến Phổ Biến</h2>
-            <p class="text-muted animate delay-100">Khám phá những địa điểm du lịch được yêu thích nhất tại Việt Nam</p>
+            <h2 class="fw-bold animate">Tours Mới Nhất</h2>
+            <p class="text-muted animate delay-100">Khám phá những tour du lịch mới nhất được giới thiệu tại Travel Nest</p>
         </div>
-        
+
         <div class="row">
-            <!-- Destination 1 -->
-            <div class="col-md-4 mb-4 animate delay-100">
-                <div class="card border-0 shadow-sm h-100">
-                    <img src="https://source.unsplash.com/600x400/?halong-bay" class="card-img-top" alt="Hạ Long">
-                    <div class="card-body text-center">
-                        <h4 class="card-title">Vịnh Hạ Long</h4>
-                        <p class="card-text text-muted">Di sản thiên nhiên thế giới với hàng nghìn đảo đá vôi tuyệt đẹp</p>
-                        <a href="tours.php?location=Ha%20Long" class="btn btn-outline-primary">Xem tours</a>
+            <?php if (count($newestTours) > 0): ?>
+                <?php foreach ($newestTours as $index => $tour): ?>
+                    <div class="col-md-4 mb-4 animate delay-<?php echo ($index + 1) * 100; ?>">
+                        <div class="tour-card">
+                            <div class="tour-card-img-wrapper">
+                                <img src="admin/<?php echo $tour['image1']; ?>" class="card-img-top tour-card-img" alt="<?php echo $tour['name']; ?>">
+                                <div class="tour-card-tag">
+                                    <span class="badge bg-success">Mới</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="tour-duration"><i class="far fa-calendar-alt me-1"></i> <?php echo $tour['duration']; ?></span>
+                                    <span class="tour-price"><?php echo number_format($tour['price_adult'], 0, ',', '.'); ?>đ</span>
+                                </div>
+                                <h5 class="card-title"><?php echo strlen($tour['name']) > 40 ? substr($tour['name'], 0, 37) . '...' : $tour['name']; ?></h5>
+                                <div class="tour-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span><?php echo strlen($tour['location']) > 40 ? substr($tour['location'], 0, 37) . '...' : $tour['location']; ?></span>
+                                </div>
+                                <p class="card-text small text-muted mt-2">
+                                    <?php echo strlen($tour['description']) > 100 ? substr(strip_tags($tour['description']), 0, 97) . '...' : strip_tags($tour['description']); ?>
+                                </p>
+                                <hr>
+                                <div class="d-grid">
+                                    <a href="tour-detail.php?id=<?php echo $tour['tour_id']; ?>" class="btn btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12 text-center">
+                    <p>Không có tour mới nào được tìm thấy</p>
                 </div>
-            </div>
-            
-            <!-- Destination 2 -->
-            <div class="col-md-4 mb-4 animate delay-200">
-                <div class="card border-0 shadow-sm h-100">
-                    <img src="https://source.unsplash.com/600x400/?danang" class="card-img-top" alt="Đà Nẵng">
-                    <div class="card-body text-center">
-                        <h4 class="card-title">Đà Nẵng</h4>
-                        <p class="card-text text-muted">Thành phố biển năng động với cầu Rồng và bãi biển Mỹ Khê tuyệt đẹp</p>
-                        <a href="tours.php?location=Da%20Nang" class="btn btn-outline-primary">Xem tours</a>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Destination 3 -->
-            <div class="col-md-4 mb-4 animate delay-300">
-                <div class="card border-0 shadow-sm h-100">
-                    <img src="https://source.unsplash.com/600x400/?phuquoc" class="card-img-top" alt="Phú Quốc">
-                    <div class="card-body text-center">
-                        <h4 class="card-title">Phú Quốc</h4>
-                        <p class="card-text text-muted">Đảo ngọc với bãi biển cát trắng, nước biển trong xanh và nhiều khu nghỉ dưỡng cao cấp</p>
-                        <a href="tours.php?location=Phu%20Quoc" class="btn btn-outline-primary">Xem tours</a>
-                    </div>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
 
-<!-- Featured Tours -->
+<!-- Most Booked Tours -->
 <section class="py-5 bg-light">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="fw-bold animate">Tour Du Lịch Nổi Bật</h2>
-            <p class="text-muted animate delay-100">Những gói tour được du khách đánh giá cao và lựa chọn nhiều nhất</p>
+            <h2 class="fw-bold animate">Tour Du Lịch Được Đặt Nhiều Nhất</h2>
+            <p class="text-muted animate delay-100">Những gói tour được du khách tin tưởng và lựa chọn nhiều nhất</p>
         </div>
-        
+
         <div class="row">
-            <!-- Tour 1 -->
-            <div class="col-md-4 animate delay-100">
-                <div class="tour-card">
-                    <img src="assets/images/tour1.jpg" class="card-img-top tour-card-img" alt="Tour Hạ Long">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-primary">Phổ biến</span>
-                            <span class="tour-price">2.590.000đ</span>
-                        </div>
-                        <h5 class="card-title">Tour Vịnh Hạ Long 2N1Đ</h5>
-                        <div class="tour-location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Hạ Long, Quảng Ninh</span>
-                        </div>
-                        <div class="tour-duration">
-                            <i class="far fa-calendar-alt"></i>
-                            <span>2 ngày 1 đêm</span>
-                        </div>
-                        <hr>
-                        <div class="d-grid">
-                            <a href="tour-detail.php?id=1" class="btn btn-primary">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Tour 2 -->
-            <div class="col-md-4 animate delay-200">
-                <div class="tour-card">
-                    <img src="assets/images/tour2.jpg" class="card-img-top tour-card-img" alt="Tour Đà Nẵng">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-danger">Giảm giá</span>
-                            <span class="tour-price">3.490.000đ</span>
-                        </div>
-                        <h5 class="card-title">Tour Đà Nẵng - Hội An 3N2Đ</h5>
-                        <div class="tour-location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Đà Nẵng - Hội An</span>
-                        </div>
-                        <div class="tour-duration">
-                            <i class="far fa-calendar-alt"></i>
-                            <span>3 ngày 2 đêm</span>
-                        </div>
-                        <hr>
-                        <div class="d-grid">
-                            <a href="tour-detail.php?id=2" class="btn btn-primary">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Tour 3 -->
-            <div class="col-md-4 animate delay-300">
-                <div class="tour-card">
-                    <img src="assets/images/tour3.jpg" class="card-img-top tour-card-img" alt="Tour Phú Quốc">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-success">Mới</span>
-                            <span class="tour-price">4.990.000đ</span>
-                        </div>
-                        <h5 class="card-title">Tour Phú Quốc 4N3Đ</h5>
-                        <div class="tour-location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Phú Quốc, Kiên Giang</span>
-                        </div>
-                        <div class="tour-duration">
-                            <i class="far fa-calendar-alt"></i>
-                            <span>4 ngày 3 đêm</span>
-                        </div>
-                        <hr>
-                        <div class="d-grid">
-                            <a href="tour-detail.php?id=3" class="btn btn-primary">Xem chi tiết</a>
+            <?php if (count($popularTours) > 0): ?>
+                <?php foreach ($popularTours as $index => $tour): ?>
+                    <div class="col-md-4 animate delay-<?php echo ($index + 1) * 100; ?>">
+                        <div class="tour-card">
+                            <div class="tour-card-img-wrapper">
+                                <img src="admin/<?php echo $tour['image1']; ?>" class="card-img-top tour-card-img" alt="<?php echo $tour['name']; ?>">
+                                <div class="tour-card-tag">
+                                    <span class="badge bg-primary">Phổ biến</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="tour-rating">
+                                        <?php
+                                        $rating = isset($tour['avg_rating']) ? $tour['avg_rating'] : 0;
+                                        $fullStars = floor($rating);
+                                        $halfStar = $rating - $fullStars >= 0.5;
+
+                                        for ($i = 1; $i <= 5; $i++) {
+                                            if ($i <= $fullStars) {
+                                                echo '<i class="fas fa-star"></i>';
+                                            } elseif ($i == $fullStars + 1 && $halfStar) {
+                                                echo '<i class="fas fa-star-half-alt"></i>';
+                                            } else {
+                                                echo '<i class="far fa-star"></i>';
+                                            }
+                                        }
+                                        ?>
+                                        <span class="ms-1"><?php echo number_format($rating, 1); ?> (<?php echo $tour['review_count']; ?>)</span>
+                                    </div>
+                                    <span class="tour-price"><?php echo number_format($tour['price_adult'], 0, ',', '.'); ?>đ</span>
+                                </div>
+                                <h5 class="card-title"><?php echo strlen($tour['name']) > 40 ? substr($tour['name'], 0, 37) . '...' : $tour['name']; ?></h5>
+                                <div class="tour-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span><?php echo strlen($tour['location']) > 40 ? substr($tour['location'], 0, 37) . '...' : $tour['location']; ?></span>
+                                </div>
+                                <div class="tour-duration">
+                                    <i class="far fa-calendar-alt"></i>
+                                    <span><?php echo $tour['duration']; ?></span>
+                                </div>
+                                <p class="card-text small text-muted mt-2">
+                                    <?php echo strlen($tour['description']) > 100 ? substr(strip_tags($tour['description']), 0, 97) . '...' : strip_tags($tour['description']); ?>
+                                </p>
+                                <hr>
+                                <div class="d-grid">
+                                    <a href="tour-detail.php?id=<?php echo $tour['tour_id']; ?>" class="btn btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12 text-center">
+                    <p>Không có tour nào được đặt</p>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
-        
+
         <div class="text-center mt-4 animate">
             <a href="tours.php" class="btn btn-outline-primary btn-lg">Xem tất cả tour</a>
         </div>
@@ -186,7 +183,7 @@
             <h2 class="fw-bold animate">Tại Sao Chọn Travel Nest?</h2>
             <p class="text-muted animate delay-100">Chúng tôi cam kết mang đến cho bạn những trải nghiệm du lịch tuyệt vời nhất</p>
         </div>
-        
+
         <div class="row">
             <!-- Feature 1 -->
             <div class="col-md-3 col-sm-6 mb-4 animate delay-100">
@@ -198,7 +195,7 @@
                     <p class="text-muted small">Dịch vụ du lịch chất lượng cao với đội ngũ hướng dẫn viên chuyên nghiệp</p>
                 </div>
             </div>
-            
+
             <!-- Feature 2 -->
             <div class="col-md-3 col-sm-6 mb-4 animate delay-200">
                 <div class="feature-card text-center">
@@ -209,7 +206,7 @@
                     <p class="text-muted small">Mức giá cạnh tranh với nhiều ưu đãi hấp dẫn cho khách hàng thân thiết</p>
                 </div>
             </div>
-            
+
             <!-- Feature 3 -->
             <div class="col-md-3 col-sm-6 mb-4 animate delay-300">
                 <div class="feature-card text-center">
@@ -220,7 +217,7 @@
                     <p class="text-muted small">Đảm bảo an toàn tuyệt đối cho du khách trong suốt hành trình</p>
                 </div>
             </div>
-            
+
             <!-- Feature 4 -->
             <div class="col-md-3 col-sm-6 mb-4 animate delay-400">
                 <div class="feature-card text-center">
@@ -235,195 +232,78 @@
     </div>
 </section>
 
-<!-- Statistics Section -->
-<section class="py-5 bg-primary text-white stats-section">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-md-3 col-6 mb-4">
-                <h2 class="fw-bold counter" data-target="1500">0</h2>
-                <p>Tour đã tổ chức</p>
-            </div>
-            <div class="col-md-3 col-6 mb-4">
-                <h2 class="fw-bold counter" data-target="12000">0</h2>
-                <p>Khách hàng hài lòng</p>
-            </div>
-            <div class="col-md-3 col-6 mb-4">
-                <h2 class="fw-bold counter" data-target="50">0</h2>
-                <p>Điểm đến</p>
-            </div>
-            <div class="col-md-3 col-6 mb-4">
-                <h2 class="fw-bold counter" data-target="25">0</h2>
-                <p>Giải thưởng</p>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- Testimonials -->
-<section class="py-5">
+<section class="py-5 bg-light">
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="fw-bold animate">Khách Hàng Nói Gì?</h2>
-            <p class="text-muted animate delay-100">Cảm nhận của khách hàng sau khi trải nghiệm dịch vụ của chúng tôi</p>
+            <p class="text-muted animate delay-100">Đánh giá thực tế từ những khách hàng đã trải nghiệm dịch vụ của chúng tôi</p>
         </div>
-        
-        <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <!-- Testimonial Group 1 -->
-                <div class="carousel-item active">
-                    <div class="row">
-                        <div class="col-md-4 mb-4">
-                            <div class="testimonial-card h-100">
-                                <div class="testimonial-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <p class="testimonial-text">"Tour Hạ Long thật tuyệt vời! Cảnh đẹp, đồ ăn ngon, hướng dẫn viên nhiệt tình. Chắc chắn sẽ quay lại lần nữa!"</p>
-                                <div class="d-flex align-items-center mt-3">
-                                    <img src="https://randomuser.me/api/portraits/women/12.jpg" class="testimonial-img" alt="Khách hàng">
-                                    <div>
-                                        <p class="testimonial-name">Nguyễn Thị Hương</p>
-                                        <small class="text-muted">Tour Vịnh Hạ Long</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-4">
-                            <div class="testimonial-card h-100">
-                                <div class="testimonial-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <p class="testimonial-text">"Chuyến đi Đà Nẵng - Hội An đáng nhớ với gia đình tôi. Lịch trình hợp lý, khách sạn tốt, và dịch vụ chuyên nghiệp!"</p>
-                                <div class="d-flex align-items-center mt-3">
-                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" class="testimonial-img" alt="Khách hàng">
-                                    <div>
-                                        <p class="testimonial-name">Trần Văn Minh</p>
-                                        <small class="text-muted">Tour Đà Nẵng - Hội An</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-4">
-                            <div class="testimonial-card h-100">
-                                <div class="testimonial-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                </div>
-                                <p class="testimonial-text">"Phú Quốc thật sự là thiên đường! Biển xanh, cát trắng, và chương trình tour rất chi tiết. Travel Nest không làm tôi thất vọng!"</p>
-                                <div class="d-flex align-items-center mt-3">
-                                    <img src="https://randomuser.me/api/portraits/women/28.jpg" class="testimonial-img" alt="Khách hàng">
-                                    <div>
-                                        <p class="testimonial-name">Lê Thu Thảo</p>
-                                        <small class="text-muted">Tour Phú Quốc</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Testimonial Group 2 -->
-                <div class="carousel-item">
-                    <div class="row">
-                        <div class="col-md-4 mb-4">
-                            <div class="testimonial-card h-100">
-                                <div class="testimonial-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
-                                </div>
-                                <p class="testimonial-text">"Chuyến đi Sapa tuyệt vời với cảnh đẹp hùng vĩ và người dân thân thiện. Cảm ơn Travel Nest đã tổ chức chuyến đi hoàn hảo!"</p>
-                                <div class="d-flex align-items-center mt-3">
-                                    <img src="https://randomuser.me/api/portraits/men/15.jpg" class="testimonial-img" alt="Khách hàng">
-                                    <div>
-                                        <p class="testimonial-name">Phạm Tuấn Anh</p>
-                                        <small class="text-muted">Tour Sapa</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-4">
-                            <div class="testimonial-card h-100">
-                                <div class="testimonial-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <p class="testimonial-text">"Tour Đà Lạt rất thú vị với nhiều địa điểm tham quan và không khí mát mẻ. Nhân viên nhiệt tình, chu đáo!"</p>
-                                <div class="d-flex align-items-center mt-3">
-                                    <img src="https://randomuser.me/api/portraits/women/22.jpg" class="testimonial-img" alt="Khách hàng">
-                                    <div>
-                                        <p class="testimonial-name">Hoàng Ngọc Mai</p>
-                                        <small class="text-muted">Tour Đà Lạt</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-4">
-                            <div class="testimonial-card h-100">
-                                <div class="testimonial-rating">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <p class="testimonial-text">"Chuyến du lịch Huế - Hội An thật sự đáng nhớ. Được tìm hiểu về lịch sử, văn hóa và thưởng thức ẩm thực tuyệt vời!"</p>
-                                <div class="d-flex align-items-center mt-3">
-                                    <img src="https://randomuser.me/api/portraits/men/62.jpg" class="testimonial-img" alt="Khách hàng">
-                                    <div>
-                                        <p class="testimonial-name">Đỗ Quang Hải</p>
-                                        <small class="text-muted">Tour Huế - Hội An</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-            
-            <div class="carousel-indicators" style="bottom: -50px;">
-                <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active" style="background-color: #FF6B6B;" aria-current="true" aria-label="Slide 1"></button>
-                <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="1" style="background-color: #FF6B6B;" aria-label="Slide 2"></button>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- Call to Action -->
-<section class="container">
-    <div class="cta-section animate">
-        <div class="row align-items-center">
-            <div class="col-lg-8 text-center text-lg-start mb-4 mb-lg-0">
-                <h2 class="fw-bold mb-3">Sẵn sàng cho chuyến du lịch tiếp theo?</h2>
-                <p class="mb-0">Đăng ký ngay hôm nay để nhận ưu đãi đặc biệt cho tour du lịch trong nước!</p>
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div id="reviewsCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <?php if (count($reviews) > 0): ?>
+                            <?php foreach ($reviews as $index => $review): ?>
+                                <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
+                                    <div class="testimonial-card-large p-4 p-md-5">
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3 mb-md-0">
+                                                <div class="text-center">
+                                                    <img src="admin/assets/img/user.jpg" class="testimonial-img-large rounded-circle mb-3" alt="Khách hàng">
+                                                    <h5 class="mb-1"><?php echo $review['full_name']; ?></h5>
+                                                    <p class="text-muted mb-2">Khách hàng</p>
+                                                    <div class="testimonial-rating mb-3">
+                                                        <?php
+                                                        for ($i = 1; $i <= 5; $i++) {
+                                                            if ($i <= $review['rating']) {
+                                                                echo '<i class="fas fa-star"></i>';
+                                                            } else {
+                                                                echo '<i class="far fa-star"></i>';
+                                                            }
+                                                        }
+                                                        ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="testimonial-content">
+                                                    <i class="fas fa-quote-left fa-2x text-primary opacity-25 mb-3"></i>
+                                                    <p class="testimonial-text-large">"<?php echo $review['comment']; ?>"</p>
+                                                    <p class="text-muted fst-italic mt-3">Đã trải nghiệm: <?php echo $review['tour_name']; ?></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="carousel-item active">
+                                <div class="testimonial-card-large p-4 p-md-5">
+                                    <div class="text-center">
+                                        <p>Chưa có đánh giá nào</p>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (count($reviews) > 1): ?>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#reviewsCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="col-lg-4 text-center text-lg-end">
-                <a href="register.php" class="btn btn-light btn-lg">Đăng ký ngay</a>
-            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="#" class="btn btn-outline-primary">Xem tất cả đánh giá</a>
         </div>
     </div>
 </section>
@@ -449,10 +329,70 @@
         visibility: hidden;
         transition: all 0.3s;
     }
-    
+
     #back-to-top.show {
         opacity: 1;
         visibility: visible;
+    }
+
+    .tour-card {
+        padding: 0 10px;
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border-radius: 0.5rem;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background-color: #fff;
+        height: 100%;
+    }
+
+    .tour-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .tour-card-img-wrapper {
+        position: relative;
+    }
+
+    .tour-card-img {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .tour-card-tag {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+    }
+
+    .tour-rating i {
+        color: #FFD700;
+        font-size: 14px;
+    }
+
+    .testimonial-card-large {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .testimonial-img-large {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+    }
+
+    .testimonial-text-large {
+        font-size: 1.05rem;
+        line-height: 1.7;
+    }
+
+    @media (max-width: 767px) {
+        .testimonial-img-large {
+            width: 80px;
+            height: 80px;
+        }
     }
 </style>
 

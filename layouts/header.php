@@ -37,9 +37,6 @@ if (session_status() === PHP_SESSION_NONE) {
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" href="index.php">Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="tours.php">Tour du lịch</a>
                     </li>
                     <li class="nav-item">
@@ -62,7 +59,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <li><a class="dropdown-item" href="admin/pages/statistics/statistics.php"><i class="fas fa-cogs me-2"></i>Quản trị viên</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             <?php endif; ?>
-                            <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user me-2"></i>Hồ sơ cá nhân</a></li>
+                            <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user me-2"></i>Quản lý tài khoản</a></li>
                             <li><a class="dropdown-item" href="my-bookings.php"><i class="fas fa-list-alt me-2"></i>Tour đã đặt</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>

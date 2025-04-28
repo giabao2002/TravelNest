@@ -1,0 +1,17 @@
+1 Chức năng dành cho khách hàng
+Đăng ký tài khoản: Cho phép người dùng tạo tài khoản mới bằng cách cung cấp thông tin như họ tên, email, mật khẩu, số điện thoại,...(đã làm xong)
+Đăng nhập/Đăng xuất: Cho phép người dùng đăng nhập vào hệ thống bằng email và mật khẩu đã đăng ký, và đăng xuất khỏi phiên làm việc.(đã làm xong)
+Quản lý tài khoản: Cho phép người dùng xem và chỉnh sửa các thông tin cá nhân như họ tên, số điện thoại, email, mật khẩu.
+Tìm kiếm tour du lịch: Hệ thống hỗ trợ tìm kiếm tour theo từ khóa tên tour(name), địa điểm(location), mức giá (price_adult) hoặc các ngày có thể khởi hành (departure_date)
+Xem chi tiết tour: Người dùng có thể xem đầy đủ thông tin về tour như lịch trình, chi phí, hình ảnh, đánh giá,...
+Đặt tour trực tuyến: Cho phép khách hàng chọn tour và thực hiện đặt tour thông qua biểu mẫu có sẵn (số lượng người lớn, trẻ em, tổng tiền, ghi chú). Sau đó hiển thị 1 mã QR thanh toán demo.
+Quản lý lịch sử đặt tour: Hiển thị danh sách các tour đã đặt kèm trạng thái: đã xác nhận(khi người dùng đã đặt thành công), đã hủy. cho phép xem chi tiết hoặc yêu cầu hủy đơn.
+Đánh giá tour đã tham gia: Sau khi kết thúc tour, người dùng có thể gửi đánh giá bằng cách chọn số sao và nhập bình luận.
+
+2 Chức năng dành cho quản trị viên
+Đăng nhập quản trị: Quản trị viên đăng nhập bằng tài khoản đặc biệt để truy cập hệ thống quản lý.(đã làm xong)
+Quản lý thông tin tour: Thực hiện thêm, sửa, xóa, cập nhật thông tin tour (tên tour, lịch trình, giá, ngày khởi hành, hình ảnh,...).(đã làm xong)
+Quản lý đơn đặt tour: Xem danh sách đơn đặt, xem chi tiết thông tin khách, đơn đặt, trạng thái đơn, cho phép thực hiện hủy đơn.
+Quản lý khách hàng: Xem thông tin các khách hàng trên hệ thống, kiểm tra lịch sử đặt tour, chặn tài khoản nếu cần thiết.(đã làm xong)
+Quản lý đánh giá: Xem các đánh giá của khách hàng, thực hiện xóa những đánh giá không phù hợp.
+Thống kê doanh thu: Hệ thống hỗ trợ thống kê tổng doanh thu theo nhiều tiêu chí: theo ngày, tháng, quý, năm hoặc theo địa điểm tour phổ biến.

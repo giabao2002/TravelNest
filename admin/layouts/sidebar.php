@@ -25,7 +25,7 @@
         <li class="nav-item">
             <a class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'bookings.php' ? 'active' : ''; ?>" href="../booking/bookings.php">
                 <i class="fas fa-calendar-check"></i>
-                <span>Quản lý Đặt tour</span>
+                <span>Quản lý Đơn đặt</span>
             </a>
         </li>
 
