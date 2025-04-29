@@ -105,7 +105,7 @@ $reviews = $stmt->get_result();
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Danh sách đánh giá</h5>
+                            <h3 class="card-title mb-0">Danh sách đánh giá</h3>
                             <div class="btn-group">
                                 <a href="?filter=all" class="btn btn-<?php echo $filter === 'all' ? 'primary' : 'outline-primary'; ?>">Tất cả</a>
                                 <a href="?filter=active" class="btn btn-<?php echo $filter === 'active' ? 'primary' : 'outline-primary'; ?>">Đang hiển thị</a>

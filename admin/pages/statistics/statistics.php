@@ -118,7 +118,7 @@ if ($filter === 'day') {
     $selectTime = "QUARTER(b.booking_date) as quarter";
     $labelFormat = "'Quý ' + value";
 } elseif ($filter === 'year') {
-    // Thống kê theo năm
+    // Thống kê theo năm - không cần timeFilter vì đã filter theo năm
     $timeFilter = "";
     $chartTitle = "Doanh thu theo năm";
     $groupBy = "YEAR(b.booking_date)";
@@ -156,7 +156,7 @@ if ($filter === 'day') {
     } else {
         $stmt->bind_param("is", $year, $location);
     }
-} else {
+} else { // year filter
     if (!empty($location)) {
         $stmt->bind_param("s", $location);
     }
@@ -372,7 +372,7 @@ foreach ($revenueData as $item) {
                                                         <td data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo $booking['email']; ?>">
                                                             <?php echo $booking['full_name']; ?>
                                                         </td>
-                                                        <td><?php echo substr($booking['tour_name'], 0, 21) . '...'; ?></td>
+                                                        <td><?php echo substr($booking['tour_name'], 0, 16) . '...'; ?></td>
                                                         <td>
                                                             <?php
                                                             $statusClass = '';
@@ -385,7 +385,7 @@ foreach ($revenueData as $item) {
                                                                     $statusClass = 'status-completed';
                                                                     $statusText = 'Hoàn thành';
                                                                     break;
-                                                                case 'canceled':
+                                                                case 'cancelled':
                                                                     $statusClass = 'status-cancelled';
                                                                     $statusText = 'Đã hủy';
                                                                     break;
@@ -468,7 +468,7 @@ foreach ($revenueData as $item) {
                                 <!-- Filter Options -->
                                 <div class="card mb-4">
                                     <div class="card-header">
-                                        <h5 class="card-title">Bộ lọc thống kê</h5>
+                                        <h5 class="card-title">Hãy chọn thời gian để xem dữ liệu</h5>
                                     </div>
                                     <div class="card-body">
                                         <form method="get" action="statistics.php" class="row g-3">
@@ -484,9 +484,9 @@ foreach ($revenueData as $item) {
                                             </div>
                                             
                                             <!-- Năm -->
-                                            <div class="col-md-2">
+                                            <div class="col-md-2" id="year-filter">
                                                 <label for="year" class="form-label">Năm</label>
-                                                <select class="form-select" id="year" name="year" <?php if ($filter === 'year') echo "disabled"; ?>>
+                                                <select class="form-select" id="year" name="year">
                                                     <?php foreach ($years as $y): ?>
                                                         <option value="<?php echo $y; ?>" <?php if ($year == $y) echo "selected"; ?>>
                                                             <?php echo $y; ?>
@@ -502,18 +502,6 @@ foreach ($revenueData as $item) {
                                                     <?php for ($i = 1; $i <= 12; $i++): ?>
                                                         <option value="<?php echo $i; ?>" <?php if ($month == $i) echo "selected"; ?>>
                                                             Tháng <?php echo $i; ?>
-                                                        </option>
-                                                    <?php endfor; ?>
-                                                </select>
-                                            </div>
-                                            
-                                            <!-- Quý -->
-                                            <div class="col-md-2 filter-option" id="quarter-filter" <?php if ($filter !== 'quarter') echo 'style="display:none;"'; ?>>
-                                                <label for="quarter" class="form-label">Quý</label>
-                                                <select class="form-select" id="quarter" name="quarter">
-                                                    <?php for ($i = 1; $i <= 4; $i++): ?>
-                                                        <option value="<?php echo $i; ?>" <?php if ($quarter == $i) echo "selected"; ?>>
-                                                            Quý <?php echo $i; ?>
                                                         </option>
                                                     <?php endfor; ?>
                                                 </select>
@@ -535,6 +523,9 @@ foreach ($revenueData as $item) {
                                             <!-- Submit Button -->
                                             <div class="col-md-2 d-flex align-items-end">
                                                 <button type="submit" class="btn btn-primary">Lọc dữ liệu</button>
+                                            </div>
+                                            <div class="col-md-2 d-flex align-items-end">
+                                                <a href="statistics.php" class="btn btn-secondary">Xóa bộ lọc</a>
                                             </div>
                                         </form>
                                     </div>
@@ -653,10 +644,12 @@ foreach ($revenueData as $item) {
             
             // Ẩn hiện các bộ lọc
             document.getElementById('month-filter').style.display = filter === 'day' ? 'block' : 'none';
-            document.getElementById('quarter-filter').style.display = filter === 'quarter' ? 'block' : 'none';
+            // document.getElementById('quarter-filter').style.display = filter === 'quarter' ? 'block' : 'none';
             
-            // Ẩn hiện trường năm
-            document.getElementById('year').disabled = filter === 'year';
+            // Ẩn hiện trường năm - không sử dụng disabled để đảm bảo giá trị vẫn được gửi đi
+            const yearField = document.getElementById('year');
+            yearField.style.display = filter === 'year' ? 'none' : 'block';
+            yearField.disabled = false; // Luôn đảm bảo giá trị được gửi đi
         }
         
         // Biểu đồ doanh thu
@@ -665,13 +658,46 @@ foreach ($revenueData as $item) {
         const data = <?php echo json_encode($chartData); ?>;
         const labelFormat = <?php echo json_encode($labelFormat); ?>;
         
+        // Tạo mảng dữ liệu đầy đủ (bao gồm cả các ngày/tháng/quý/năm không có doanh thu)
+        let fullLabels = [];
+        let fullData = [];
+
+        // Xử lý hiển thị đầy đủ khoảng thời gian
+        if ('<?php echo $filter; ?>' === 'day') {
+            // Thêm đủ các ngày trong tháng
+            const daysInMonth = new Date(<?php echo $year; ?>, <?php echo $month; ?>, 0).getDate();
+            for (let i = 1; i <= daysInMonth; i++) {
+                fullLabels.push(i);
+                const dataIndex = labels.findIndex(label => parseInt(label) === i);
+                fullData.push(dataIndex !== -1 ? data[dataIndex] : 0);
+            }
+        } else if ('<?php echo $filter; ?>' === 'month') {
+            // Thêm đủ 12 tháng
+            for (let i = 1; i <= 12; i++) {
+                fullLabels.push(i);
+                const dataIndex = labels.findIndex(label => parseInt(label) === i);
+                fullData.push(dataIndex !== -1 ? data[dataIndex] : 0);
+            }
+        } else if ('<?php echo $filter; ?>' === 'quarter') {
+            // Thêm đủ 4 quý, bắt đầu từ Quý 1
+            for (let i = 1; i <= 4; i++) {
+                fullLabels.push(i);
+                const dataIndex = labels.findIndex(label => parseInt(label) === i);
+                fullData.push(dataIndex !== -1 ? data[dataIndex] : 0);
+            }
+        } else {
+            // Sử dụng dữ liệu gốc cho năm
+            fullLabels = labels.map(label => parseInt(label));
+            fullData = data;
+        }
+
         const revenueChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: labels,
+                labels: fullLabels,
                 datasets: [{
                     label: 'Doanh thu (đồng)',
-                    data: data,
+                    data: fullData,
                     backgroundColor: 'rgba(54, 162, 235, 0.7)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
@@ -692,8 +718,17 @@ foreach ($revenueData as $item) {
                     x: {
                         ticks: {
                             callback: function(value, index) {
-                                const label = labels[index];
-                                return eval(labelFormat);
+                                const label = fullLabels[index];
+                                // Áp dụng format tùy thuộc vào loại lọc
+                                if ('<?php echo $filter; ?>' === 'day') {
+                                    return 'Ngày ' + label;
+                                } else if ('<?php echo $filter; ?>' === 'month') {
+                                    return 'Tháng ' + label;
+                                } else if ('<?php echo $filter; ?>' === 'quarter') {
+                                    return 'Quý ' + label;
+                                } else {
+                                    return label;
+                                }
                             }
                         }
                     }

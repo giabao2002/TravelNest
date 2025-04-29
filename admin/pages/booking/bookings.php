@@ -138,7 +138,7 @@ $bookings = $stmt->get_result();
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Danh sách đơn đặt tour</h5>
+                            <h3 class="card-title mb-0">Danh sách đơn đặt tour</h3>
                             <div class="btn-group">
                                 <a href="?filter=all" class="btn btn-<?php echo $filter === 'all' ? 'primary' : 'outline-primary'; ?>">Tất cả</a>
                                 <a href="?filter=confirmed" class="btn btn-<?php echo $filter === 'confirmed' ? 'primary' : 'outline-primary'; ?>">Đã xác nhận</a>

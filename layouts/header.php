@@ -29,7 +29,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.php">
-                <i class="fas fa-globe-asia text-primary me-2"></i>Travel Nest
+                <img src="assets/images/logo.png" alt="Travel Nest" class="me-2" style="width: 50px; height: 50px;">Travel Nest
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -56,7 +56,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuButton">
                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                                <li><a class="dropdown-item" href="admin/pages/statistics/statistics.php"><i class="fas fa-cogs me-2"></i>Quản trị viên</a></li>
+                                <li><a class="dropdown-item" href="admin/pages/statistics/statistics.php"><i class="fas fa-cogs me-2"></i>Trang quản lý</a></li>
                                 <li><hr class="dropdown-divider"></li>
                             <?php endif; ?>
                             <li><a class="dropdown-item" href="profile.php"><i class="fas fa-user me-2"></i>Quản lý tài khoản</a></li>
