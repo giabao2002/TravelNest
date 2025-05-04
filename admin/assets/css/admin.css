@@ -408,6 +408,10 @@ body {
     visibility: visible;
 }
 
+.badge{
+    color:#212529;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
     width: 6px;

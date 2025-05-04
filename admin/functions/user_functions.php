@@ -157,7 +157,8 @@ function updateUserStatus($conn, $userId, $status) {
 function getUserBookings($conn, $userId) {
     $bookings = [];
     
-    $sql = "SELECT b.*, t.name as tour_name, t.location, td.departure_date 
+    $sql = "SELECT b.*, t.name as tour_name, t.location, td.departure_date,
+            b.num_adults as adults, b.num_children as children
             FROM bookings b
             JOIN tour_dates td ON b.date_id = td.date_id
             JOIN tours t ON td.tour_id = t.tour_id

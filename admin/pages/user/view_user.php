@@ -148,12 +148,12 @@ $pageTitle = 'Chi tiết Người dùng: ' . htmlspecialchars($user['email']);
                                     <p class="text-center">Không tìm thấy lịch sử đặt tour cho người dùng này.</p>
                                 <?php else: ?>
                                     <div class="table-responsive">
-                                        <table class="table table-bordered" width="100%" cellspacing="0">
-                                            <thead>
+                                        <table class="table table-bordered table-hover" width="100%" cellspacing="0">
+                                            <thead class="thead-light">
                                                 <tr>
-                                                    <th>Mã đặt tour</th>
+                                                    <th>Mã</th>
                                                     <th>Tour</th>
-                                                    <th>Ngày khởi hành</th>
+                                                    <th>Khởi hành</th>
                                                     <th>Số người</th>
                                                     <th>Tổng tiền</th>
                                                     <th>Trạng thái</th>
@@ -163,24 +163,31 @@ $pageTitle = 'Chi tiết Người dùng: ' . htmlspecialchars($user['email']);
                                             <tbody>
                                                 <?php foreach ($userBookings as $booking): ?>
                                                     <tr>
-                                                        <td><?php echo $booking['booking_id']; ?></td>
+                                                        <td class="font-weight-bold"><?php echo $booking['booking_id']; ?></td>
                                                         <td>
-                                                            <a href="../tour/edit_tour.php?id=<?php echo $booking['tour_id']; ?>">
+                                                            <a href="../tour/edit_tour.php?id=<?php echo $booking['tour_id']; ?>" class="font-weight-bold text-primary">
                                                                 <?php echo htmlspecialchars($booking['tour_name']); ?>
                                                             </a>
                                                             <div class="small text-muted"><?php echo htmlspecialchars($booking['location']); ?></div>
                                                         </td>
                                                         <td><?php echo date('d/m/Y', strtotime($booking['departure_date'])); ?></td>
                                                         <td>
-                                                            Người lớn: <?php echo $booking['adults']; ?><br>
-                                                            Trẻ em: <?php echo $booking['children']; ?>
+                                                            <span class="badge badge-primary">
+                                                                <i class="fas fa-user"></i> Người lớn: <?php echo isset($booking['adults']) ? $booking['adults'] : 0; ?>
+                                                            </span>
+                                                            <br>
+                                                            <span class="badge badge-info mt-1">
+                                                                <i class="fas fa-child"></i> Trẻ em: <?php echo isset($booking['children']) ? $booking['children'] : 0; ?>
+                                                            </span>
                                                         </td>
-                                                        <td><?php echo number_format($booking['total_price']) . ' VNĐ'; ?></td>
-                                                        <td>
+                                                        <td class="font-weight-bold text-right"><?php echo number_format($booking['total_price']); ?></td>
+                                                        <td class="text-center">
                                                             <?php if ($booking['status'] == 'confirmed'): ?>
-                                                                <span class="badge badge-success">Đã xác nhận</span>
+                                                                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Đã xác nhận</span>
                                                             <?php elseif ($booking['status'] == 'cancelled'): ?>
-                                                                <span class="badge badge-danger">Đã hủy</span>
+                                                                <span class="badge badge-danger"><i class="fas fa-times-circle"></i> Đã hủy</span>
+                                                            <?php elseif ($booking['status'] == 'pending'): ?>
+                                                                <span class="badge badge-warning"><i class="fas fa-clock"></i> Chờ xác nhận</span>
                                                             <?php else: ?>
                                                                 <span class="badge badge-secondary"><?php echo htmlspecialchars($booking['status']); ?></span>
                                                             <?php endif; ?>
