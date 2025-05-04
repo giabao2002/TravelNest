@@ -65,6 +65,19 @@ if (isset($_POST['confirm_booking']) && isset($_POST['booking_id'])) {
     }
 }
 
+// Xử lý hoàn thành đơn đặt tour
+if (isset($_POST['complete_booking']) && isset($_POST['booking_id'])) {
+    $bookingId = $_POST['booking_id'];
+    $stmt = $conn->prepare("UPDATE bookings SET status = 'completed' WHERE booking_id = ?");
+    $stmt->bind_param("i", $bookingId);
+    
+    if ($stmt->execute()) {
+        $success = "Đã đánh dấu đơn đặt tour hoàn thành thành công.";
+    } else {
+        $error = "Có lỗi xảy ra: " . $conn->error;
+    }
+}
+
 // Lấy danh sách đơn đặt tour
 $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 $whereClause = '';
@@ -208,6 +221,12 @@ $bookings = $stmt->get_result();
                                                     </button>
                                                     
                                                     <?php if ($booking['status'] === 'confirmed'): ?>
+                                                        <form method="post" class="d-inline">
+                                                            <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
+                                                            <button type="submit" name="complete_booking" class="btn btn-sm btn-success" title="Đánh dấu hoàn thành">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                        </form>
                                                         <form method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn đặt tour này?');">
                                                             <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
                                                             <button type="submit" name="cancel_booking" class="btn btn-sm btn-danger">
@@ -259,6 +278,10 @@ $bookings = $stmt->get_result();
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                                                             <?php if ($booking['status'] === 'confirmed'): ?>
+                                                                <form method="post" class="d-inline me-2">
+                                                                    <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
+                                                                    <button type="submit" name="complete_booking" class="btn btn-success">Đánh dấu hoàn thành</button>
+                                                                </form>
                                                                 <form method="post" class="d-inline">
                                                                     <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
                                                                     <button type="submit" name="cancel_booking" class="btn btn-danger">Hủy đơn</button>

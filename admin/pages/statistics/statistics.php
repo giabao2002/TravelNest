@@ -254,7 +254,7 @@ foreach ($revenueData as $item) {
     } else {
         $chartLabels[] = $item['year'];
     }
-    
+
     $chartData[] = $item['total_revenue'];
 }
 ?>
@@ -372,7 +372,7 @@ foreach ($revenueData as $item) {
                                                         <td data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo $booking['email']; ?>">
                                                             <?php echo $booking['full_name']; ?>
                                                         </td>
-                                                        <td><?php echo substr($booking['tour_name'], 0, 16) . '...'; ?></td>
+                                                        <td><?php echo strlen($booking['tour_name']) > 16 ? substr($booking['tour_name'], 0, 16) . '...' : $booking['tour_name']; ?></td>
                                                         <td>
                                                             <?php
                                                             $statusClass = '';
@@ -428,7 +428,7 @@ foreach ($revenueData as $item) {
                                             </div>
                                             <div class="activity-content">
                                                 <div class="activity-title">
-                                                    <?php echo $review['full_name'] ?> đã đánh giá <?php echo substr($review['tour_name'], 0, 30) . '...'; ?>
+                                                    <?php echo $review['full_name'] ?> đã đánh giá <?php echo strlen($review['tour_name']) > 30 ? substr($review['tour_name'], 0, 30) . '...' : $review['tour_name']; ?>
                                                     <div class="float-end">
                                                         <?php for ($i = 1; $i <= 5; $i++): ?>
                                                             <?php if ($i <= $review['rating']): ?>
@@ -439,7 +439,12 @@ foreach ($revenueData as $item) {
                                                         <?php endfor; ?>
                                                     </div>
                                                 </div>
-                                                <p class="mb-1"><?php echo substr($review['comment'], 0, 30); ?></p>
+                                                <p class="mb-1">
+                                                    <?php
+                                                    $comment = $review['comment'];
+                                                    echo strlen($comment) > 30 ? substr($comment, 0, 30) . '...' : $comment;
+                                                    ?>
+                                                </p>
                                                 <div class="activity-time">
                                                     <?php echo date('d/m/Y H:i', strtotime($review['review_date'])); ?>
                                                 </div>
@@ -482,7 +487,7 @@ foreach ($revenueData as $item) {
                                                     <option value="year" <?php if ($filter === 'year') echo "selected"; ?>>Năm</option>
                                                 </select>
                                             </div>
-                                            
+
                                             <!-- Năm -->
                                             <div class="col-md-2" id="year-filter">
                                                 <label for="year" class="form-label">Năm</label>
@@ -494,7 +499,7 @@ foreach ($revenueData as $item) {
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
-                                            
+
                                             <!-- Tháng -->
                                             <div class="col-md-2 filter-option" id="month-filter" <?php if ($filter !== 'day') echo 'style="display:none;"'; ?>>
                                                 <label for="month" class="form-label">Tháng</label>
@@ -506,7 +511,7 @@ foreach ($revenueData as $item) {
                                                     <?php endfor; ?>
                                                 </select>
                                             </div>
-                                            
+
                                             <!-- Địa điểm -->
                                             <div class="col-md-3">
                                                 <label for="location" class="form-label">Địa điểm</label>
@@ -519,7 +524,7 @@ foreach ($revenueData as $item) {
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
-                                            
+
                                             <!-- Submit Button -->
                                             <div class="col-md-2 d-flex align-items-end">
                                                 <button type="submit" class="btn btn-primary">Lọc dữ liệu</button>
@@ -530,7 +535,7 @@ foreach ($revenueData as $item) {
                                         </form>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Revenue Summary Cards -->
                                 <div class="row mb-4">
                                     <div class="col-md-6">
@@ -552,9 +557,9 @@ foreach ($revenueData as $item) {
                                             <div class="card-body text-center">
                                                 <h6 class="card-subtitle mb-2 text-muted">Doanh thu trung bình</h6>
                                                 <h2 class="card-title text-success">
-                                                    <?php 
+                                                    <?php
                                                     $averageRevenue = $totalConfirmedBookings > 0 ? $totalRevenue / $totalConfirmedBookings : 0;
-                                                    echo number_format($averageRevenue, 0, ',', '.'); 
+                                                    echo number_format($averageRevenue, 0, ',', '.');
                                                     ?>đ
                                                 </h2>
                                                 <p class="card-text">
@@ -567,7 +572,7 @@ foreach ($revenueData as $item) {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Revenue Chart -->
                                 <div class="card mb-4">
                                     <div class="card-header">
@@ -577,7 +582,7 @@ foreach ($revenueData as $item) {
                                         <canvas id="revenueChart" height="300"></canvas>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Top Tours Table -->
                                 <div class="card">
                                     <div class="card-header">
@@ -641,23 +646,23 @@ foreach ($revenueData as $item) {
         // Cập nhật bộ lọc dựa trên lựa chọn
         function updateFilterOptions() {
             const filter = document.getElementById('filter').value;
-            
+
             // Ẩn hiện các bộ lọc
             document.getElementById('month-filter').style.display = filter === 'day' ? 'block' : 'none';
             // document.getElementById('quarter-filter').style.display = filter === 'quarter' ? 'block' : 'none';
-            
+
             // Ẩn hiện trường năm - không sử dụng disabled để đảm bảo giá trị vẫn được gửi đi
             const yearField = document.getElementById('year');
             yearField.style.display = filter === 'year' ? 'none' : 'block';
             yearField.disabled = false; // Luôn đảm bảo giá trị được gửi đi
         }
-        
+
         // Biểu đồ doanh thu
         const ctx = document.getElementById('revenueChart').getContext('2d');
         const labels = <?php echo json_encode($chartLabels); ?>;
         const data = <?php echo json_encode($chartData); ?>;
         const labelFormat = <?php echo json_encode($labelFormat); ?>;
-        
+
         // Tạo mảng dữ liệu đầy đủ (bao gồm cả các ngày/tháng/quý/năm không có doanh thu)
         let fullLabels = [];
         let fullData = [];
@@ -746,4 +751,5 @@ foreach ($revenueData as $item) {
         });
     </script>
 </body>
+
 </html>

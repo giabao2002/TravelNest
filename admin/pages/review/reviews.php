@@ -139,7 +139,7 @@ $reviews = $stmt->get_result();
                                                     <?php echo $review['full_name']; ?><br>
                                                     <small class="text-muted"><?php echo $review['email']; ?></small>
                                                 </td>
-                                                <td><?php echo $review['tour_name']; ?></td>
+                                                <td><?php echo strlen($review['tour_name']) > 26 ? substr($review['tour_name'], 0, 26) . '...' : $review['tour_name']; ?></td>
                                                 <td>
                                                     <?php for ($i = 1; $i <= 5; $i++): ?>
                                                         <?php if ($i <= $review['rating']): ?>
