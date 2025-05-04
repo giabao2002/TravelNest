@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Apr 28, 2025 at 12:04 PM
+-- Generation Time: May 04, 2025 at 11:19 AM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.16
 
@@ -41,6 +41,20 @@ CREATE TABLE `bookings` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `bookings`
+--
+
+INSERT INTO `bookings` (`booking_id`, `user_id`, `tour_id`, `date_id`, `num_adults`, `num_children`, `total_price`, `notes`, `status`, `booking_date`, `updated_at`) VALUES
+(1, 2, 6, 20, 5, 2, 5450000.00, '', 'confirmed', '2025-04-28 18:27:06', '2025-05-04 10:46:19'),
+(2, 3, 6, 20, 3, 1, 3170000.00, '', 'confirmed', '2025-04-28 18:27:44', '2025-04-28 18:27:44'),
+(3, 3, 1, 1, 5, 0, 4000000.00, '', 'confirmed', '2025-04-28 18:32:53', '2025-04-28 18:32:53'),
+(4, 4, 6, 20, 5, 2, 5450000.00, '', 'cancelled', '2025-04-28 18:33:28', '2025-04-28 18:33:34'),
+(5, 4, 5, 13, 4, 0, 1600000.00, '', 'completed', '2025-04-28 18:34:53', '2025-05-04 11:07:01'),
+(6, 5, 6, 17, 5, 0, 4450000.00, '', 'completed', '2025-04-28 18:35:33', '2025-05-04 11:06:57'),
+(7, 5, 4, 10, 5, 0, 50000000.00, '', 'completed', '2025-04-28 18:35:50', '2025-05-04 11:07:02'),
+(8, 2, 6, 19, 7, 3, 7730000.00, '', 'cancelled', '2025-05-04 10:36:05', '2025-05-04 10:36:42');
+
 -- --------------------------------------------------------
 
 --
@@ -57,6 +71,16 @@ CREATE TABLE `reviews` (
   `status` enum('active','deleted') DEFAULT 'active',
   `review_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `reviews`
+--
+
+INSERT INTO `reviews` (`review_id`, `user_id`, `tour_id`, `booking_id`, `rating`, `comment`, `status`, `review_date`) VALUES
+(1, 2, 6, 1, 5, 'Dịch vụ nơi đây rất tốt', 'active', '2025-05-04 10:43:40'),
+(2, 4, 5, 5, 4, 'Trải nghiệm tương đối hay', 'active', '2025-05-04 11:08:47'),
+(3, 5, 4, 7, 1, 'Tôi không thích chuyến đi này', 'active', '2025-05-04 11:09:22'),
+(4, 5, 6, 6, 5, 'Địa điểm cực chill', 'active', '2025-05-04 11:09:38');
 
 -- --------------------------------------------------------
 
@@ -111,26 +135,27 @@ CREATE TABLE `tour_dates` (
 --
 
 INSERT INTO `tour_dates` (`date_id`, `tour_id`, `departure_date`, `available_seats`, `status`) VALUES
-(1, 1, '2025-04-18', 20, 'available'),
-(2, 1, '2025-04-22', 20, 'available'),
-(3, 1, '2025-04-26', 20, 'available'),
-(4, 2, '2025-04-18', 20, 'available'),
-(5, 2, '2025-04-23', 20, 'available'),
-(6, 2, '2025-04-28', 20, 'available'),
-(7, 3, '2025-04-18', 20, 'available'),
-(8, 3, '2025-04-24', 20, 'available'),
-(9, 3, '2025-04-30', 20, 'available'),
-(10, 4, '2025-04-18', 20, 'available'),
-(11, 4, '2025-04-22', 20, 'available'),
-(12, 4, '2025-04-26', 20, 'available'),
-(13, 5, '2025-04-18', 20, 'available'),
-(14, 5, '2025-04-20', 20, 'available'),
-(15, 5, '2025-04-22', 20, 'available'),
-(16, 5, '2025-04-24', 20, 'available'),
-(17, 6, '2025-04-18', 10, 'available'),
-(18, 6, '2025-04-22', 20, 'available'),
-(19, 6, '2025-04-26', 20, 'available'),
-(20, 6, '2025-04-30', 20, 'available');
+(1, 1, '2025-04-29', 15, 'available'),
+(2, 1, '2025-05-03', 20, 'available'),
+(3, 1, '2025-05-07', 20, 'available'),
+(4, 2, '2025-04-29', 20, 'available'),
+(5, 2, '2025-05-04', 20, 'available'),
+(6, 2, '2025-05-09', 20, 'available'),
+(7, 3, '2025-04-29', 20, 'available'),
+(8, 3, '2025-05-05', 20, 'available'),
+(9, 3, '2025-05-11', 20, 'available'),
+(10, 4, '2025-04-29', 15, 'available'),
+(11, 4, '2025-05-03', 20, 'available'),
+(12, 4, '2025-05-07', 20, 'available'),
+(13, 5, '2025-04-29', 16, 'available'),
+(14, 5, '2025-05-01', 20, 'available'),
+(15, 5, '2025-05-03', 20, 'available'),
+(16, 5, '2025-05-05', 20, 'available'),
+(17, 6, '2025-04-29', 5, 'available'),
+(18, 6, '2025-05-03', 20, 'available'),
+(19, 6, '2025-05-07', 20, 'available'),
+(20, 6, '2025-05-11', 9, 'available'),
+(21, 6, '2025-05-15', 20, 'available');
 
 -- --------------------------------------------------------
 
@@ -157,8 +182,10 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `full_name`, `email`, `password`, `phone`, `address`, `role`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'Admin', 'admin@gmail.com', '$2y$10$eXmUyaQ/mMHBoWZNByynreVCO3qnGQV5K6S282RtwvNcAeMimE2zS', '0123456789', NULL, 'admin', 'active', '2025-04-18 09:22:04', '2025-04-18 09:28:52'),
-(2, 'Nguyễn Văn A', 'user@gmail.com', '$2y$10$eXmUyaQ/mMHBoWZNByynreVCO3qnGQV5K6S282RtwvNcAeMimE2zS', '0123456789', 'Hà Nội', 'customer', 'active', '2025-04-18 09:28:20', '2025-04-28 12:03:51'),
-(3, 'Nguyễn Văn B', 'user2@gmail.com', '$2y$10$UjcwGRbauTEz3MRtycHBHe1VWtRfHdi7757OowT9kKR6nHX628Kr2', '0123456789', 'Hà Nội', 'customer', 'active', '2025-04-18 10:53:29', '2025-04-28 12:03:56');
+(2, 'Nguyễn Văn A', 'user@gmail.com', '$2y$10$FwXaaAG5/D0LLAYjRESGLOqtbqBupgAqcotBZNVHwe0uUluBxK6qe', '0123456789', 'Hà Nội', 'customer', 'active', '2025-04-18 09:28:20', '2025-05-04 10:32:57'),
+(3, 'Nguyễn Văn B', 'user2@gmail.com', '$2y$10$UjcwGRbauTEz3MRtycHBHe1VWtRfHdi7757OowT9kKR6nHX628Kr2', '0123456789', 'Hà Nội', 'customer', 'active', '2025-04-18 10:53:29', '2025-04-28 12:03:56'),
+(4, 'Nguyễn Văn C', 'user3@gmail.com', '$2y$10$/4/FRdMRyXSTrlLkdnB.Meew38AUI7hS7PWNoMhQ/F4DwrfTs4z6O', '0123456789', '', 'customer', 'active', '2025-04-28 16:43:28', '2025-04-28 16:43:28'),
+(5, 'Nguyễn Văn D', 'user4@gmail.com', '$2y$10$igKp98oGfJiNQCvPMTu5oOIJX7APQ6ShY4t/FvOzxq1HY3pbfJiO6', '0123456789', '', 'customer', 'active', '2025-04-28 16:46:40', '2025-05-04 10:42:14');
 
 --
 -- Indexes for dumped tables
@@ -210,13 +237,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `booking_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `booking_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `review_id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `review_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `tours`
@@ -228,13 +255,13 @@ ALTER TABLE `tours`
 -- AUTO_INCREMENT for table `tour_dates`
 --
 ALTER TABLE `tour_dates`
-  MODIFY `date_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `date_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `user_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
