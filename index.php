@@ -49,13 +49,13 @@ while ($row = $reviewsResult->fetch_assoc()) {
     <div class="container hero-content text-center">
         <h1 class="hero-title animate">Khám Phá Vẻ Đẹp Việt Nam</h1>
         <p class="hero-subtitle animate delay-100">Trải nghiệm những chuyến du lịch trong nước đáng nhớ với Travel Nest</p>
-        <a href="#search" class="btn btn-primary btn-lg animate delay-200">Khám phá ngay</a>
+        <a href="#newest-tours" class="btn btn-primary btn-lg animate delay-200">Khám phá ngay</a>
     </div>
 </section>
 
 <!-- Newest Tours -->
 <section class="py-5">
-    <div class="container">
+    <div class="container" id="newest-tours">
         <div class="text-center mb-5">
             <h2 class="fw-bold animate">Tours Mới Nhất</h2>
             <p class="text-muted animate delay-100">Khám phá những tour du lịch mới nhất được giới thiệu tại Travel Nest</p>
