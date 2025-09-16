@@ -181,11 +181,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `full_name`, `email`, `password`, `phone`, `address`, `role`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', 'admin@gmail.com', '$2y$10$eXmUyaQ/mMHBoWZNByynreVCO3qnGQV5K6S282RtwvNcAeMimE2zS', '0123456789', NULL, 'admin', 'active', '2025-04-18 09:22:04', '2025-04-18 09:28:52'),
-(2, 'Nguyễn Văn A', 'user@gmail.com', '$2y$10$FwXaaAG5/D0LLAYjRESGLOqtbqBupgAqcotBZNVHwe0uUluBxK6qe', '0123456789', 'Hà Nội', 'customer', 'active', '2025-04-18 09:28:20', '2025-05-04 10:32:57'),
-(3, 'Nguyễn Văn B', 'user2@gmail.com', '$2y$10$UjcwGRbauTEz3MRtycHBHe1VWtRfHdi7757OowT9kKR6nHX628Kr2', '0123456789', 'Hà Nội', 'customer', 'active', '2025-04-18 10:53:29', '2025-04-28 12:03:56'),
-(4, 'Nguyễn Văn C', 'user3@gmail.com', '$2y$10$/4/FRdMRyXSTrlLkdnB.Meew38AUI7hS7PWNoMhQ/F4DwrfTs4z6O', '0123456789', '', 'customer', 'active', '2025-04-28 16:43:28', '2025-04-28 16:43:28'),
-(5, 'Nguyễn Văn D', 'user4@gmail.com', '$2y$10$igKp98oGfJiNQCvPMTu5oOIJX7APQ6ShY4t/FvOzxq1HY3pbfJiO6', '0123456789', '', 'customer', 'active', '2025-04-28 16:46:40', '2025-05-04 10:42:14');
+(1, 'Admin', 'admin@gmail.com', '$2y$10$Omai3/4irC.XgyckBrGozOj7.y2MHBdr5mS03Qmyi5mtEJdzS8QHG', '0123456789', NULL, 'admin', 'active', '2025-04-18 09:22:04', '2025-04-18 09:28:52'),
+(2, 'Nguyễn Văn A', 'user@gmail.com', '$2y$10$Omai3/4irC.XgyckBrGozOj7.y2MHBdr5mS03Qmyi5mtEJdzS8QHG', '0123456789', 'Hà Nội', 'customer', 'active', '2025-04-18 09:28:20', '2025-05-04 10:32:57'),
+(3, 'Nguyễn Văn B', 'user2@gmail.com', '$2y$10$Omai3/4irC.XgyckBrGozOj7.y2MHBdr5mS03Qmyi5mtEJdzS8QHG', '0123456789', 'Hà Nội', 'customer', 'active', '2025-04-18 10:53:29', '2025-04-28 12:03:56'),
+(4, 'Nguyễn Văn C', 'user3@gmail.com', '$2y$10$Omai3/4irC.XgyckBrGozOj7.y2MHBdr5mS03Qmyi5mtEJdzS8QHG', '0123456789', '', 'customer', 'active', '2025-04-28 16:43:28', '2025-04-28 16:43:28'),
+(5, 'Nguyễn Văn D', 'user4@gmail.com', '$2y$10$Omai3/4irC.XgyckBrGozOj7.y2MHBdr5mS03Qmyi5mtEJdzS8QHG', '0123456789', '', 'customer', 'active', '2025-04-28 16:46:40', '2025-05-04 10:42:14');
 
 --
 -- Indexes for dumped tables
