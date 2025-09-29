@@ -117,3 +117,15 @@ function redirectIfNotAdmin() {
         exit();
     }
 }
+
+// Kiểm tra xem có thể hủy đơn đặt tour không (phải hủy trước 2 ngày so với ngày khởi hành)
+function canCancelBooking($departureDate) {
+    $departureTimestamp = strtotime($departureDate);
+    $currentTimestamp = time();
+    
+    // Tính số ngày còn lại đến ngày khởi hành
+    $daysDifference = floor(($departureTimestamp - $currentTimestamp) / (60 * 60 * 24));
+    
+    // Chỉ có thể hủy nếu còn 2 ngày trở lên
+    return $daysDifference >= 2;
+}

@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['book_tour'])) {
         $numAdults = isset($_POST['num_adults']) ? (int)$_POST['num_adults'] : 0;
         $numChildren = isset($_POST['num_children']) ? (int)$_POST['num_children'] : 0;
         $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
-        
+
         // Validate
         if (empty($dateId) || !is_numeric($dateId)) {
             $error = "Vui lòng chọn ngày khởi hành.";
@@ -87,20 +87,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['book_tour'])) {
             $stmt->bind_param("ii", $dateId, $tourId);
             $stmt->execute();
             $dateResult = $stmt->get_result();
-            
+
             if ($dateResult->num_rows === 0) {
                 $error = "Ngày khởi hành không hợp lệ.";
             } else {
                 $dateData = $dateResult->fetch_assoc();
                 $availableSeats = $dateData['available_seats'];
                 $departureDate = $dateData['departure_date'];
-                
+
                 if ($numAdults + $numChildren > $availableSeats) {
                     $error = "Số lượng chỗ trống không đủ. Chỉ còn {$availableSeats} chỗ.";
                 } else {
                     // Tính tổng tiền
                     $totalPrice = ($numAdults * $tour['price_adult']) + ($numChildren * $tour['price_child']);
-                    
+
                     // Lưu thông tin đặt tour vào session thay vì lưu vào database
                     $_SESSION['booking_data'] = [
                         'user_id' => $_SESSION['user_id'],
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['book_tour'])) {
                         'tour_location' => $tour['location'],
                         'tour_image' => $tour['image1']
                     ];
-                    
+
                     // Chuyển hướng đến trang thanh toán
                     header("Location: checkout.php");
                     exit();
@@ -175,14 +175,14 @@ include 'layouts/header.php';
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
-    
+
     <?php if (!empty($success)): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <?php echo $success; ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
-    
+
     <div class="row">
         <!-- Tour Content -->
         <div class="col-lg-8">
@@ -217,7 +217,7 @@ include 'layouts/header.php';
                     </div>
                 </div>
             </div>
-            
+
             <!-- Tour Description -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
@@ -225,14 +225,14 @@ include 'layouts/header.php';
                 </div>
                 <div class="card-body">
                     <div class="tour-description">
-                        <?php 
+                        <?php
                         // Chuyển đổi xuống dòng thành HTML
-                        echo nl2br($tour['description']); 
+                        echo nl2br($tour['description']);
                         ?>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Tour Reviews -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -274,7 +274,7 @@ include 'layouts/header.php';
                 </div>
             </div>
         </div>
-        
+
         <!-- Booking Form -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm mb-4">
@@ -296,7 +296,7 @@ include 'layouts/header.php';
                             <span class="text-primary fw-bold">Miễn phí</span>
                         </div> -->
                     </div>
-                    
+
                     <form method="post" action="tour-detail.php?id=<?php echo $tourId; ?>" id="booking-form">
                         <!-- Departure Date -->
                         <div class="mb-3">
@@ -313,7 +313,7 @@ include 'layouts/header.php';
                                 <div class="form-text text-danger">Không có ngày khởi hành nào có sẵn</div>
                             <?php endif; ?>
                         </div>
-                        
+
                         <!-- Number of People -->
                         <div class="row mb-3">
                             <div class="col-6">
@@ -333,13 +333,13 @@ include 'layouts/header.php';
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Notes -->
                         <div class="mb-3">
                             <label for="notes" class="form-label">Ghi chú</label>
                             <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Yêu cầu đặc biệt, thông tin liên hệ,..."></textarea>
                         </div>
-                        
+
                         <!-- Total Price -->
                         <div class="total-price p-3 bg-light rounded mb-3">
                             <div class="d-flex justify-content-between">
@@ -347,7 +347,7 @@ include 'layouts/header.php';
                                 <span class="text-primary fw-bold fs-5" id="total-price">0đ</span>
                             </div>
                         </div>
-                        
+
                         <!-- Submit Button -->
                         <div class="d-grid">
                             <button type="submit" name="book_tour" class="btn btn-primary" <?php if (empty($availableDates)) echo "disabled"; ?>>
@@ -357,7 +357,7 @@ include 'layouts/header.php';
                     </form>
                 </div>
             </div>
-            
+
             <!-- Share and Contact -->
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
@@ -383,7 +383,7 @@ include 'layouts/header.php';
         position: relative;
         padding: 100px 0 50px;
     }
-    
+
     .tour-header::before {
         content: '';
         position: absolute;
@@ -393,23 +393,23 @@ include 'layouts/header.php';
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
     }
-    
+
     .tour-header .container {
         position: relative;
         z-index: 1;
     }
-    
+
     .tour-carousel-img {
         height: 400px;
         object-fit: cover;
     }
-    
+
     .review-item:last-child {
         border-bottom: none !important;
         margin-bottom: 0 !important;
         padding-bottom: 0 !important;
     }
-    
+
     .tour-description {
         white-space: pre-line;
     }
@@ -418,7 +418,7 @@ include 'layouts/header.php';
         width: 50px;
         height: 50px;
     }
-    
+
     @media (max-width: 992px) {
         .tour-carousel-img {
             height: 300px;
@@ -429,34 +429,34 @@ include 'layouts/header.php';
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         updateTotalPrice();
-        
+
         // Cập nhật tổng tiền khi thay đổi số lượng
         document.getElementById('num_adults').addEventListener('change', updateTotalPrice);
         document.getElementById('num_children').addEventListener('change', updateTotalPrice);
-        
+
         // Cập nhật số lượng tối đa khi chọn ngày
         document.getElementById('date_id').addEventListener('change', function() {
             updateMaxPeople();
             updateTotalPrice();
         });
-        
+
         // Khởi tạo ban đầu
         updateMaxPeople();
     });
-    
+
     function updateMaxPeople() {
         const dateSelect = document.getElementById('date_id');
         const adultInput = document.getElementById('num_adults');
         const childrenInput = document.getElementById('num_children');
-        
+
         if (dateSelect.value) {
             const selectedOption = dateSelect.options[dateSelect.selectedIndex];
             const availableSeats = parseInt(selectedOption.getAttribute('data-seats'));
-            
+
             // Cập nhật số lượng tối đa dựa trên số chỗ có sẵn
             const currentAdults = parseInt(adultInput.value) || 0;
             const currentChildren = parseInt(childrenInput.value) || 0;
-            
+
             // Đảm bảo số lượng người lớn + trẻ em không vượt quá số chỗ có sẵn
             if (currentAdults + currentChildren > availableSeats) {
                 // Nếu vượt quá, ưu tiên giữ người lớn
@@ -465,22 +465,22 @@ include 'layouts/header.php';
             }
         }
     }
-    
+
     function incrementValue(id) {
         const input = document.getElementById(id);
         const currentValue = parseInt(input.value) || 0;
         const dateSelect = document.getElementById('date_id');
-        
+
         if (dateSelect.value) {
             const selectedOption = dateSelect.options[dateSelect.selectedIndex];
             const availableSeats = parseInt(selectedOption.getAttribute('data-seats'));
-            
+
             const adultInput = document.getElementById('num_adults');
             const childrenInput = document.getElementById('num_children');
-            
+
             const currentAdults = parseInt(adultInput.value) || 0;
             const currentChildren = parseInt(childrenInput.value) || 0;
-            
+
             // Kiểm tra xem việc tăng thêm có vượt quá số chỗ có sẵn không
             if (currentAdults + currentChildren < availableSeats) {
                 input.value = currentValue + 1;
@@ -492,50 +492,50 @@ include 'layouts/header.php';
             alert('Vui lòng chọn ngày khởi hành trước.');
         }
     }
-    
+
     function decrementValue(id) {
         const input = document.getElementById(id);
         const currentValue = parseInt(input.value) || 0;
         const min = parseInt(input.getAttribute('min')) || 0;
-        
+
         if (currentValue > min) {
             input.value = currentValue - 1;
             updateTotalPrice();
         }
     }
-    
+
     function updateTotalPrice() {
         const numAdults = parseInt(document.getElementById('num_adults').value) || 0;
         const numChildren = parseInt(document.getElementById('num_children').value) || 0;
         const priceAdult = <?php echo $tour['price_adult']; ?>;
         const priceChild = <?php echo $tour['price_child']; ?>;
-        
+
         const totalPrice = (numAdults * priceAdult) + (numChildren * priceChild);
-        
+
         document.getElementById('total-price').textContent = totalPrice.toLocaleString('vi-VN') + 'đ';
     }
-    
+
     // Validate form before submission
     document.getElementById('booking-form').addEventListener('submit', function(event) {
         const dateId = document.getElementById('date_id').value;
         const numAdults = parseInt(document.getElementById('num_adults').value) || 0;
         const numChildren = parseInt(document.getElementById('num_children').value) || 0;
-        
+
         if (!dateId) {
             alert('Vui lòng chọn ngày khởi hành.');
             event.preventDefault();
             return;
         }
-        
+
         if (numAdults < 1) {
             alert('Số lượng người lớn phải ít nhất là 1.');
             event.preventDefault();
             return;
         }
-        
+
         const option = document.querySelector(`#date_id option[value="${dateId}"]`);
         const availableSeats = parseInt(option.getAttribute('data-seats'));
-        
+
         if (numAdults + numChildren > availableSeats) {
             alert(`Số lượng chỗ trống không đủ. Chỉ còn ${availableSeats} chỗ.`);
             event.preventDefault();
@@ -544,4 +544,4 @@ include 'layouts/header.php';
     });
 </script>
 
-<?php include 'layouts/footer.php'; ?> 
+<?php include 'layouts/footer.php'; ?>

@@ -11,10 +11,10 @@ $success = $error = '';
 // Xử lý hủy đơn đặt tour
 if (isset($_GET['cancel']) && is_numeric($_GET['cancel'])) {
     $bookingId = $_GET['cancel'];
-    
+
     // Kiểm tra đơn đặt tour có tồn tại và thuộc về người dùng hiện tại
     $stmt = $conn->prepare("
-        SELECT b.*, td.available_seats, td.date_id
+        SELECT b.*, td.available_seats, td.date_id, td.departure_date
         FROM bookings b
         JOIN tour_dates td ON b.date_id = td.date_id
         WHERE b.booking_id = ? AND b.user_id = ? AND b.status = 'confirmed'
@@ -22,24 +22,30 @@ if (isset($_GET['cancel']) && is_numeric($_GET['cancel'])) {
     $stmt->bind_param("ii", $bookingId, $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows > 0) {
         $booking = $result->fetch_assoc();
-        $dateId = $booking['date_id'];
-        $numPeople = $booking['num_adults'] + $booking['num_children'];
-        $newAvailableSeats = $booking['available_seats'] + $numPeople;
-        
-        // Cập nhật trạng thái đơn đặt tour thành đã hủy
-        $stmt = $conn->prepare("UPDATE bookings SET status = 'cancelled' WHERE booking_id = ?");
-        $stmt->bind_param("i", $bookingId);
-        $stmt->execute();
-        
-        // Cập nhật lại số chỗ trống
-        $stmt = $conn->prepare("UPDATE tour_dates SET available_seats = ? WHERE date_id = ?");
-        $stmt->bind_param("ii", $newAvailableSeats, $dateId);
-        $stmt->execute();
-        
-        $success = "Đã hủy đơn đặt tour thành công.";
+
+        // Kiểm tra điều kiện hủy tour (phải hủy trước 2 ngày)
+        if (!canCancelBooking($booking['departure_date'])) {
+            $error = "Không thể hủy đơn đặt tour. Bạn chỉ có thể hủy tour trước 2 ngày so với ngày khởi hành.";
+        } else {
+            $dateId = $booking['date_id'];
+            $numPeople = $booking['num_adults'] + $booking['num_children'];
+            $newAvailableSeats = $booking['available_seats'] + $numPeople;
+
+            // Cập nhật trạng thái đơn đặt tour thành đã hủy
+            $stmt = $conn->prepare("UPDATE bookings SET status = 'cancelled' WHERE booking_id = ?");
+            $stmt->bind_param("i", $bookingId);
+            $stmt->execute();
+
+            // Cập nhật lại số chỗ trống
+            $stmt = $conn->prepare("UPDATE tour_dates SET available_seats = ? WHERE date_id = ?");
+            $stmt->bind_param("ii", $newAvailableSeats, $dateId);
+            $stmt->execute();
+
+            $success = "Đã hủy đơn đặt tour thành công.";
+        }
     } else {
         $error = "Không thể hủy đơn đặt tour này.";
     }
@@ -74,21 +80,21 @@ include 'layouts/header.php';
                     <i class="fas fa-search me-2"></i>Tìm tour mới
                 </a>
             </div>
-            
+
             <?php if (!empty($success)): ?>
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <?php echo $success; ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            
+
             <?php if (!empty($error)): ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <?php echo $error; ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php endif; ?>
-            
+
             <?php if ($bookings->num_rows > 0): ?>
                 <table class="table">
                     <thead>
@@ -137,13 +143,17 @@ include 'layouts/header.php';
                                     <button type="button" class="btn btn-sm btn-info mb-1" data-bs-toggle="modal" data-bs-target="#detailModal<?php echo $booking['booking_id']; ?>">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    
-                                    <?php if ($booking['status'] === 'confirmed'): ?>
+
+                                    <?php if ($booking['status'] === 'confirmed' && canCancelBooking($booking['departure_date'])): ?>
                                         <a href="?cancel=<?php echo $booking['booking_id']; ?>" class="btn btn-sm btn-danger mb-1" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn đặt tour này?')">
                                             <i class="fas fa-times"></i>
                                         </a>
+                                    <?php elseif ($booking['status'] === 'confirmed' && !canCancelBooking($booking['departure_date'])): ?>
+                                        <button type="button" class="btn btn-sm btn-secondary mb-1" disabled title="Chỉ có thể hủy trước 2 ngày khởi hành">
+                                            <i class="fas fa-times"></i>
+                                        </button>
                                     <?php endif; ?>
-                                    
+
                                     <?php if ($booking['status'] === 'completed' && !$booking['has_review']): ?>
                                         <a href="review.php?booking_id=<?php echo $booking['booking_id']; ?>" class="btn btn-sm btn-warning mb-1">
                                             <i class="fas fa-star"></i>
@@ -151,7 +161,7 @@ include 'layouts/header.php';
                                     <?php endif; ?>
                                 </td>
                             </tr>
-                            
+
                             <!-- Modal hiển thị chi tiết đơn đặt tour -->
                             <div class="modal fade" id="detailModal<?php echo $booking['booking_id']; ?>" tabindex="-1" aria-labelledby="detailModalLabel<?php echo $booking['booking_id']; ?>" aria-hidden="true">
                                 <div class="modal-dialog modal-lg">
@@ -176,7 +186,7 @@ include 'layouts/header.php';
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="row mt-3">
                                                 <div class="col-md-6">
                                                     <h5>Thông tin đơn đặt</h5>
@@ -208,18 +218,22 @@ include 'layouts/header.php';
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <?php if ($booking['status'] === 'confirmed'): ?>
+                                            <?php if ($booking['status'] === 'confirmed' && canCancelBooking($booking['departure_date'])): ?>
                                                 <a href="?cancel=<?php echo $booking['booking_id']; ?>" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn đặt tour này?')">
                                                     <i class="fas fa-times me-2"></i>Hủy đơn
                                                 </a>
+                                            <?php elseif ($booking['status'] === 'confirmed' && !canCancelBooking($booking['departure_date'])): ?>
+                                                <button type="button" class="btn btn-secondary" disabled title="Chỉ có thể hủy trước 2 ngày khởi hành">
+                                                    <i class="fas fa-times me-2"></i>Không thể hủy
+                                                </button>
                                             <?php endif; ?>
-                                            
+
                                             <?php if ($booking['status'] === 'completed' && !$booking['has_review']): ?>
                                                 <a href="review.php?booking_id=<?php echo $booking['booking_id']; ?>" class="btn btn-warning">
                                                     <i class="fas fa-star me-2"></i>Đánh giá
                                                 </a>
                                             <?php endif; ?>
-                                            
+
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                                         </div>
                                     </div>
@@ -237,6 +251,10 @@ include 'layouts/header.php';
                 </div>
             <?php endif; ?>
         </div>
+        <div class="btn btn-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Bạn có thể hủy tour ít nhất trên 2 ngày trước ngày khởi hành.
+        </div>
     </div>
 </div>
 
@@ -247,4 +265,4 @@ include 'layouts/header.php';
     setTimeout(function() {
         $('.alert').alert('close');
     }, 3000);
-</script> 
+</script>

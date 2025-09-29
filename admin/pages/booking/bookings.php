@@ -8,44 +8,50 @@ redirectIfNotAdmin();
 // Xử lý hủy đơn đặt tour
 if (isset($_POST['cancel_booking']) && isset($_POST['booking_id'])) {
     $bookingId = $_POST['booking_id'];
-    
+
     // Get the booking details first to update available seats
     $stmt = $conn->prepare("
-        SELECT b.tour_id, b.date_id, b.num_adults, b.num_children, b.status
+        SELECT b.tour_id, b.date_id, b.num_adults, b.num_children, b.status, td.departure_date
         FROM bookings b
+        JOIN tour_dates td ON b.date_id = td.date_id
         WHERE b.booking_id = ?
     ");
     $stmt->bind_param("i", $bookingId);
     $stmt->execute();
     $booking = $stmt->get_result()->fetch_assoc();
-    
-    // Only proceed if the booking status is 'confirmed'
+
+    // Chỉ tiếp tục nếu trạng thái đặt chỗ là 'đã xác nhận'
     if ($booking && $booking['status'] == 'confirmed') {
-        // Begin transaction
-        $conn->begin_transaction();
-        try {
-            // Update booking status to cancelled
-            $updateStmt = $conn->prepare("UPDATE bookings SET status = 'cancelled' WHERE booking_id = ?");
-            $updateStmt->bind_param("i", $bookingId);
-            $updateStmt->execute();
-            
-            // Increase available seats in tour_dates
-            $totalPeople = $booking['num_adults'] + $booking['num_children'];
-            $updateSeatsStmt = $conn->prepare("
-                UPDATE tour_dates 
-                SET available_seats = available_seats + ? 
-                WHERE date_id = ?
-            ");
-            $updateSeatsStmt->bind_param("ii", $totalPeople, $booking['date_id']);
-            $updateSeatsStmt->execute();
-            
-            // Commit transaction
-            $conn->commit();
-            $success = "Đã hủy đơn đặt tour thành công và cập nhật số chỗ trống.";
-        } catch (Exception $e) {
-            // Rollback in case of error
-            $conn->rollback();
-            $error = "Có lỗi xảy ra: " . $e->getMessage();
+        // Kiểm tra điều kiện hủy tour (phải hủy trước 2 ngày)
+        if (!canCancelBooking($booking['departure_date'])) {
+            $error = "Không thể hủy đơn đặt tour. Phải hủy trước 2 ngày so với ngày khởi hành.";
+        } else {
+            // Bắt đầu giao dịch
+            $conn->begin_transaction();
+            try {
+                // Cập nhật trạng thái đơn đặt tour thành đã hủy
+                $updateStmt = $conn->prepare("UPDATE bookings SET status = 'cancelled' WHERE booking_id = ?");
+                $updateStmt->bind_param("i", $bookingId);
+                $updateStmt->execute();
+
+                // Tăng số chỗ trống trong tour_dates
+                $totalPeople = $booking['num_adults'] + $booking['num_children'];
+                $updateSeatsStmt = $conn->prepare("
+                    UPDATE tour_dates 
+                    SET available_seats = available_seats + ? 
+                    WHERE date_id = ?
+                ");
+                $updateSeatsStmt->bind_param("ii", $totalPeople, $booking['date_id']);
+                $updateSeatsStmt->execute();
+
+                // Giao dịch cam kết
+                $conn->commit();
+                $success = "Đã hủy đơn đặt tour thành công và cập nhật số chỗ trống.";
+            } catch (Exception $e) {
+                // Hoàn nguyên trong trường hợp có lỗi
+                $conn->rollback();
+                $error = "Có lỗi xảy ra: " . $e->getMessage();
+            }
         }
     } else {
         $error = "Không thể hủy đơn đặt tour. Chỉ đơn đã xác nhận mới có thể bị hủy.";
@@ -57,7 +63,7 @@ if (isset($_POST['confirm_booking']) && isset($_POST['booking_id'])) {
     $bookingId = $_POST['booking_id'];
     $stmt = $conn->prepare("UPDATE bookings SET status = 'confirmed' WHERE booking_id = ?");
     $stmt->bind_param("i", $bookingId);
-    
+
     if ($stmt->execute()) {
         $success = "Đã xác nhận đơn đặt tour thành công.";
     } else {
@@ -70,7 +76,7 @@ if (isset($_POST['complete_booking']) && isset($_POST['booking_id'])) {
     $bookingId = $_POST['booking_id'];
     $stmt = $conn->prepare("UPDATE bookings SET status = 'completed' WHERE booking_id = ?");
     $stmt->bind_param("i", $bookingId);
-    
+
     if ($stmt->execute()) {
         $success = "Đã đánh dấu đơn đặt tour hoàn thành thành công.";
     } else {
@@ -219,7 +225,7 @@ $bookings = $stmt->get_result();
                                                     <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#detailModal<?php echo $booking['booking_id']; ?>">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
-                                                    
+
                                                     <?php if ($booking['status'] === 'confirmed'): ?>
                                                         <form method="post" class="d-inline">
                                                             <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
@@ -227,16 +233,22 @@ $bookings = $stmt->get_result();
                                                                 <i class="fas fa-check"></i>
                                                             </button>
                                                         </form>
-                                                        <form method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn đặt tour này?');">
-                                                            <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
-                                                            <button type="submit" name="cancel_booking" class="btn btn-sm btn-danger">
+                                                        <?php if (canCancelBooking($booking['departure_date'])): ?>
+                                                            <form method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn đặt tour này?');">
+                                                                <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
+                                                                <button type="submit" name="cancel_booking" class="btn btn-sm btn-danger">
+                                                                    <i class="fas fa-times"></i>
+                                                                </button>
+                                                            </form>
+                                                        <?php else: ?>
+                                                            <button type="button" class="btn btn-sm btn-secondary" disabled title="Chỉ có thể hủy trước 2 ngày khởi hành">
                                                                 <i class="fas fa-times"></i>
                                                             </button>
-                                                        </form>
+                                                        <?php endif; ?>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
-                                            
+
                                             <!-- Detail Modal -->
                                             <div class="modal fade" id="detailModal<?php echo $booking['booking_id']; ?>" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog modal-lg">
@@ -282,10 +294,14 @@ $bookings = $stmt->get_result();
                                                                     <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
                                                                     <button type="submit" name="complete_booking" class="btn btn-success">Đánh dấu hoàn thành</button>
                                                                 </form>
-                                                                <form method="post" class="d-inline">
-                                                                    <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
-                                                                    <button type="submit" name="cancel_booking" class="btn btn-danger">Hủy đơn</button>
-                                                                </form>
+                                                                <?php if (canCancelBooking($booking['departure_date'])): ?>
+                                                                    <form method="post" class="d-inline">
+                                                                        <input type="hidden" name="booking_id" value="<?php echo $booking['booking_id']; ?>">
+                                                                        <button type="submit" name="cancel_booking" class="btn btn-danger">Hủy đơn</button>
+                                                                    </form>
+                                                                <?php else: ?>
+                                                                    <button type="button" class="btn btn-secondary" disabled title="Chỉ có thể hủy trước 2 ngày khởi hành">Không thể hủy</button>
+                                                                <?php endif; ?>
                                                             <?php endif; ?>
                                                         </div>
                                                     </div>
@@ -315,4 +331,5 @@ $bookings = $stmt->get_result();
         }, 3000);
     </script>
 </body>
-</html> 
+
+</html>
