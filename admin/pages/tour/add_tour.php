@@ -88,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image1' => $image1Path,
             'image2' => $image2Path,
             'image3' => $image3Path,
+            'link_map' => $_POST['link_map'],
             'status' => $status
         ];
         
@@ -190,6 +191,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <input type="text" class="form-control" id="duration" name="duration" value="<?php echo isset($_POST['duration']) ? htmlspecialchars($_POST['duration']) : ''; ?>" required>
                                             <div class="form-text">Ví dụ: 3 ngày 2 đêm, 5 ngày 4 đêm, ...</div>
                                         </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="link_map" class="form-label">Link bản đồ (Google Maps iframe)</label>
+                                        <textarea class="form-control" id="link_map" name="link_map" rows="3" placeholder="Dán link iframe từ Google Maps ở đây"><?php echo isset($_POST['link_map']) ? htmlspecialchars($_POST['link_map']) : ''; ?></textarea>
                                     </div>
                                     
                                     <div class="row">

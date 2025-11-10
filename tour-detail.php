@@ -233,6 +233,20 @@ include 'layouts/header.php';
                 </div>
             </div>
 
+            <!-- Tour Map -->
+            <?php if (!empty($tour['link_map'])): ?>
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h4 class="card-title mb-0">Bản đồ địa điểm</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="tour-map">
+                            <?php echo $tour['link_map']; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Tour Reviews -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -376,55 +390,7 @@ include 'layouts/header.php';
     </div>
 </div>
 
-<style>
-    .tour-header {
-        background-size: cover;
-        background-position: center;
-        position: relative;
-        padding: 100px 0 50px;
-    }
 
-    .tour-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-    }
-
-    .tour-header .container {
-        position: relative;
-        z-index: 1;
-    }
-
-    .tour-carousel-img {
-        height: 400px;
-        object-fit: cover;
-    }
-
-    .review-item:last-child {
-        border-bottom: none !important;
-        margin-bottom: 0 !important;
-        padding-bottom: 0 !important;
-    }
-
-    .tour-description {
-        white-space: pre-line;
-    }
-
-    .testimonial-img-small {
-        width: 50px;
-        height: 50px;
-    }
-
-    @media (max-width: 992px) {
-        .tour-carousel-img {
-            height: 300px;
-        }
-    }
-</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

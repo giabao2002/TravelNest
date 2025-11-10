@@ -174,12 +174,12 @@ function addTour($conn, $tourData, $dates = []) {
     
     try {
         // Insert tour data
-        $sql = "INSERT INTO tours (name, description, location, duration, price_adult, price_child, image1, image2, image3, status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO tours (name, description, location, duration, price_adult, price_child, image1, image2, image3, link_map, status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         
         $stmt->bind_param(
-            "ssssddssss", 
+            "ssssddsssss", 
             $tourData['name'], 
             $tourData['description'], 
             $tourData['location'], 
@@ -189,6 +189,7 @@ function addTour($conn, $tourData, $dates = []) {
             $tourData['image1'],
             $tourData['image2'],
             $tourData['image3'],
+            $tourData['link_map'],
             $tourData['status']
         );
         $stmt->execute();
@@ -233,12 +234,12 @@ function updateTour($conn, $tourId, $tourData) {
         // Update tour data
         $sql = "UPDATE tours 
                 SET name = ?, description = ?, location = ?, duration = ?, 
-                    price_adult = ?, price_child = ?, status = ?, image1 = ?, image2 = ?, image3 = ?
+                    price_adult = ?, price_child = ?, status = ?, image1 = ?, image2 = ?, image3 = ?, link_map = ?
                 WHERE tour_id = ?";
         
         $stmt = $conn->prepare($sql);
         $stmt->bind_param(
-            "ssssddssssi", 
+            "ssssddsssssi", 
             $tourData['name'], 
             $tourData['description'], 
             $tourData['location'], 
@@ -249,6 +250,7 @@ function updateTour($conn, $tourId, $tourData) {
             $tourData['image1'],
             $tourData['image2'],
             $tourData['image3'],
+            $tourData['link_map'],
             $tourId
         );
         $stmt->execute();

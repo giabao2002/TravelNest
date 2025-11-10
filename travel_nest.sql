@@ -99,6 +99,7 @@ CREATE TABLE `tours` (
   `image1` varchar(255) DEFAULT NULL,
   `image2` varchar(255) DEFAULT NULL,
   `image3` varchar(255) DEFAULT NULL,
+  `link_map` text,
   `status` enum('active','inactive') DEFAULT 'active',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
